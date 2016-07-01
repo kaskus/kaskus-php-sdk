@@ -3,9 +3,9 @@
 require __DIR__.'/../vendor/autoload.php';
 
 use GuzzleHttp\Client;
-use CommerceGuys\Guzzle\Oauth2\GrantType\RefreshToken;
-use CommerceGuys\Guzzle\Oauth2\GrantType\PasswordCredentials;
-use CommerceGuys\Guzzle\Oauth2\Oauth2Subscriber;
+use Sainsburys\Guzzle\Oauth2\GrantType\RefreshToken;
+use Sainsburys\Guzzle\Oauth2\GrantType\PasswordCredentials;
+use Sainsburys\Guzzle\Oauth2\Oauth2Subscriber;
 
 $base_url = 'http://webstaging.kaskus.co.id';
 
@@ -27,7 +27,7 @@ $oauth2 = new Oauth2Subscriber($token, $refreshToken);
 
 $client = new Client([
     'defaults' => [
-        'debug' => true,
+        'debug' => true, //to do delete
         'auth' => 'oauth2',
         'subscribers' => [$oauth2],
         'headers' => array(
