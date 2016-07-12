@@ -4,6 +4,7 @@ require __DIR__.'/../vendor/autoload.php';
 
 use GuzzleHttp\Client;
 use Sainsburys\Guzzle\Oauth2\GrantType\RefreshToken;
+use Sainsburys\Guzzle\Oauth2\GrantType\ClientCredentials;
 use Sainsburys\Guzzle\Oauth2\GrantType\PasswordCredentials;
 use Sainsburys\Guzzle\Oauth2\Oauth2Subscriber;
 
@@ -22,18 +23,15 @@ try {
         'token_url' => 'oauth/access-token',
     ];
 
-    $token = new PasswordCredentials($oauth2Client, $config);
-    $refreshToken = new RefreshToken($oauth2Client, $config);
-
-    $oauth2 = new Oauth2Subscriber($token, $refreshToken);
-
-
-    $oauth2->setAccessToken('AWUaGCDMUkrB9LWyMqckrruy9pa7N10ZBqRRGJZG', 'Bearer', 467313999);
-    $oauth2->setRefreshToken('k11stHmypBnwKpwZDEQ9YdDLyOkZ47frnuS96dcc');
-
-    // if expired get new one from refresh token
-    // $accessToken = $oauth2->getAccessToken();
-    // var_dump($accessToken);die();
+    // $token = new PasswordCredentials($oauth2Client, $config);
+    // $refreshToken = new RefreshToken($oauth2Client, $config);
+    // $oauth2 = new Oauth2Subscriber($token, $refreshToken);
+     
+    $token = new ClientCredentials($oauth2Client, $config);
+    $oauth2 = new Oauth2Subscriber($token);
+    
+    // $oauth2->setAccessToken('fdBH4DCoTDxQAH9F9sUZntXCEXNOGpHP9tSPtl9H', 'Bearer', 468308379);
+    // $oauth2->setRefreshToken('Cj2eNF9rFNysxFNMj4hACLtEtkBNfnBAWhWeeeZK');
 
     $client = new Client([
         'defaults' => [
@@ -60,7 +58,7 @@ try {
     var_dump($accessToken->getRefreshToken()->getToken());
 
 } catch (\Exception $e) {
-    var_dump($e);
+    var_dump($e->getResponse()->json());
 }
 
  // var_dump($oauth2->getAccessToken());
