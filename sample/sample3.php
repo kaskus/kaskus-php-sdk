@@ -2,13 +2,13 @@
 
 require __DIR__.'/../vendor/autoload.php';
 
-$clientId = '1';
-$clientSecret = 'secret';
+$clientId = 'YOUR_CLIENT_ID';
+$clientSecret = 'YOUR_CLIENT_SECRET';
 
 //optional
 $baseUrl = 'http://webstaging.kaskus.co.id/';
-$token['accessToken'] = '13PP02Cl2zFFpeJnz08vZtW6OK5gIIyveNWq3vm4k';
-$token['expires'] = 1468577986;
+$token['accessToken'] = 'YOUR_ACCESS_TOKEN';
+$token['expires'] = 1468577986; //unix timestamp
 
 $client = new \Kaskus\KaskusClientOauth2($clientId, $clientSecret, $baseUrl, $token);
 
@@ -26,4 +26,5 @@ try {
 echo "\n";
 
 // Get current access token or request new access token
+// SDK will request new access token if current access token is invalid, expired, or not exists
 // $client->getAccessToken();
