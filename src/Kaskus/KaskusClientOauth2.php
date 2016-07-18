@@ -116,8 +116,8 @@ class KaskusClientOauth2
             throw new KaskusServerException();
         }
 
-        if (isset($error['errormessage'])) {
-            $errorMessage = $error['errormessage'];
+        if (isset($error['error_description'])) {
+            $errorMessage = $error['error_description'];
 
             if ($statusCode === 401) {
                 throw new UnauthorizedException($errorMessage);
