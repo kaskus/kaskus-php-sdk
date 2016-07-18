@@ -6,7 +6,7 @@ $clientId = 'YOUR_CLIENT_ID';
 $clientSecret = 'YOUR_CLIENT_SECRET';
 
 //optional
-$baseUrl = 'http://webstaging.kaskus.co.id/';
+$baseUrl = 'https://www.kaskus.co.id/';
 $token['accessToken'] = 'YOUR_ACCESS_TOKEN';
 $token['expires'] = 1468577986; //unix timestamp
 
