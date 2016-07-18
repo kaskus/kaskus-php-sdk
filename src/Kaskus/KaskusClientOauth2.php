@@ -22,12 +22,14 @@ class KaskusClientOauth2
 
     public function __construct($clientId, $clientSecret, $baseUrl = null, $accessToken = null)
     {
-        $this->client = new Client(['base_url' => ($baseUrl ? $baseUrl : self::BASE_URL) . 'api/oauth/']);
+        $parsedUrl = $this->parseApiUrl($baseUrl);
+        
+        $this->client = new Client(['base_url' => $parsedUrl['apiUrl']]);
 
         $config = [
             'client_id' => $clientId,
             'client_secret' => $clientSecret,
-            'token_url' => ($baseUrl ? $baseUrl : self::BASE_URL) . 'oauth/access-token/',
+            'token_url' => $parsedUrl['accessTokenUrl'],
         ];
         
         $clientCredentials = new ClientCredentials($this->client, $config);
@@ -37,6 +39,7 @@ class KaskusClientOauth2
             $this->oauth2Subscriber->setAccessToken($accessToken['accessToken'], 'Bearer', $accessToken['expires']);  
         }
         
+        $this->client->setDefaultOption('debug', 'true');
         $this->client->setDefaultOption('auth', 'oauth2');
         $this->client->setDefaultOption('subscribers', [$this->oauth2Subscriber]);
         $this->client->setDefaultOption('headers', array('Return-Type' => 'text/json'));      
@@ -128,5 +131,15 @@ class KaskusClientOauth2
         }
 
         throw new KaskusServerException();
+    }
+    
+    protected function parseApiUrl($url)
+    {
+        $baseUrl = parse_url($url ?: self::BASE_URL);
+        
+        $parsedUrl['apiUrl'] = $baseUrl['scheme'] . '://' . $baseUrl['host'] . '/api/oauth/';
+        $parsedUrl['accessTokenUrl'] = $baseUrl['scheme'] . '://' . $baseUrl['host'] . '/oauth/access-token/';
+
+        return $parsedUrl;
     }
 }
