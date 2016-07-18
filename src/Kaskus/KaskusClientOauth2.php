@@ -20,8 +20,14 @@ class KaskusClientOauth2
     public $client;
     public $oauth2Subscriber;
 
-    public function __construct($clientId, $clientSecret, $baseUrl = null, $accessToken = null)
+    public function __construct($config)
     {
+        $clientId = $config['clientId'];
+        $clientSecret = $config['clientSecret'];
+        $baseUrl = $config['baseUrl'];
+        $accessToken = $config['accessToken'];
+        $accessTokenUrl = $config['accessTokenUrl'];
+        
         $parsedUrl = $this->parseApiUrl($baseUrl);
         
         $this->client = new Client(['base_url' => $parsedUrl['apiUrl']]);
@@ -29,7 +35,7 @@ class KaskusClientOauth2
         $config = [
             'client_id' => $clientId,
             'client_secret' => $clientSecret,
-            'token_url' => $parsedUrl['accessTokenUrl'],
+            'token_url' => $accessTokenUrl ?: $parsedUrl['accessTokenUrl'],
         ];
         
         $clientCredentials = new ClientCredentials($this->client, $config);
@@ -39,7 +45,6 @@ class KaskusClientOauth2
             $this->oauth2Subscriber->setAccessToken($accessToken['accessToken'], 'Bearer', $accessToken['expires']);  
         }
         
-        $this->client->setDefaultOption('debug', 'true');
         $this->client->setDefaultOption('auth', 'oauth2');
         $this->client->setDefaultOption('subscribers', [$this->oauth2Subscriber]);
         $this->client->setDefaultOption('headers', array('Return-Type' => 'text/json'));      
@@ -108,9 +113,11 @@ class KaskusClientOauth2
     {
         $response = $exception->getResponse();
         $statusCode = $response->getStatusCode();
-
+        
         if ($statusCode >= 500) {
             throw new KaskusServerException();
+        } elseif ($statusCode === 404) {
+            throw new ResourceNotFoundException();
         }
 
         try {
@@ -124,8 +131,6 @@ class KaskusClientOauth2
 
             if ($statusCode === 401) {
                 throw new UnauthorizedException($errorMessage);
-            } elseif ($statusCode === 404) {
-                throw new ResourceNotFoundException();
             }
             throw new KaskusClientException($errorMessage);
         }
