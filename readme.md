@@ -69,8 +69,10 @@ try {
 Login With Kaskus
 -----------------
 
-Use this [Oauth sample](sample/oauth_sample.php)
+This is the login flow diagram. For more information see this [article](http://oauthbible.com/)
+![alt tag](https://raw.githubusercontent.com/kaskus/kaskus-php-sdk/master/docs/Kaskus%20Oauth1%20Login%20Flow.png)
 
+Use this [Oauth sample](sample/simpleApplication/readme.md)
 
 Advance Usage
 -------------
