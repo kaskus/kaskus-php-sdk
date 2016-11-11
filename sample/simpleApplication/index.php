@@ -14,7 +14,7 @@
 		// attempt to get request token
 		$requestToken = $client->getRequestToken($callbackUrl);
 		$authorizeUrl = $client->getAuthorizeUrl($requestToken['oauth_token']);
-    	$_SESSION['tokenSecret'] = $requestToken['oauth_token_secret'];
+		$_SESSION['tokenSecret'] = $requestToken['oauth_token_secret'];
 		header('Location: ' . $authorizeUrl);
 	} elseif ($_GET['oauth_token'] && $_GET['token'] && $_GET['oauth_verifier']) {
 		$requestTokenSecret = $_SESSION['tokenSecret'];
