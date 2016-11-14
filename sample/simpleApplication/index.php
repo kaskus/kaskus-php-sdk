@@ -21,8 +21,21 @@
 		$client->setCredentials($_GET['oauth_token'], $requestTokenSecret);
 		$accessToken = $client->getAccessToken();
 		if ($accessToken['access'] === 'GRANTED') {
+			$client->setCredentials($accessToken['oauth_token'], $accessToken['oauth_token_secret']);
+			try {
+				$response = $client->get('user');
+				$userInfo = $response->json();
+				$profilePicture = $userInfo['profilepicture'];
+			} catch (\Kaskus\Exceptions\KaskusRequestException $exception) {
+				// Kaskus Api returned an error
+
+			} catch (\Exception $exception) {
+				// some other error occured
+			}
+
 ?>
-			Welcome, <a href="http://www.kaskus.co.id/profile/<?php echo $accessToken['userid']; ?>"><?php echo $accessToken['username'];?></a>
+			Welcome, <a href="http://www.kaskus.co.id/profile/<?php echo $accessToken['userid']; ?>"><?php echo $accessToken['username'];?></a><br>
+			Your profile picture: <br><img src="<?php echo $profilePicture; ?>">
 <?php
 		}
 	} else {
