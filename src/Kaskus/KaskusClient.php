@@ -100,13 +100,14 @@ class KaskusClient extends \GuzzleHttp\Client
         $statusCode = $response->getStatusCode();
 
         if ($statusCode >= 500) {
-            throw new KaskusServerException();
+            $body = $response->getBody();
+            throw new KaskusServerException($body, $statusCode);
         }
 
         try {
             $error = $response->json();
         } catch (\RuntimeException $e) {
-            throw new KaskusServerException();
+            throw new KaskusServerException($e->getMessage());
         }
 
         if (isset($error['errormessage'])) {
@@ -120,6 +121,6 @@ class KaskusClient extends \GuzzleHttp\Client
             throw new KaskusClientException($errorMessage);
         }
 
-        throw new KaskusServerException();
+        throw new KaskusServerException(print_r($error, true), $statusCode);
     }
 }
