@@ -100,8 +100,8 @@ class KaskusClient extends \GuzzleHttp\Client
         $statusCode = $response->getStatusCode();
 
         if ($statusCode >= 500) {
-            $body = $response->getBody();
-            throw new KaskusServerException(print_r($body, true), $statusCode);
+            $bodyContent = $response->getBody()->getContents();
+            throw new KaskusServerException(print_r($bodyContent, true), $statusCode);
         }
 
         try {
