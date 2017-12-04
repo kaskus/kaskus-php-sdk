@@ -30,7 +30,11 @@ class BaseKaskusClient
 
 		$clientConfig = [
 			'base_uri' => $this->baseUri,
-			'handler' => $this->getHandlerStack()
+			'handler' => $this->getHandlerStack(),
+			'auth' => 'oauth',
+			'headers' => [
+				'Return-Type' => 'text/json'
+			]
 		];
 		$this->client = $clientFactory->create($clientConfig);
 	}

@@ -30,7 +30,6 @@ class KaskusClient extends BaseKaskusClient
 		$cientFactory = new ClientFactory();
 		$OAuthFactory = new OAuthFactory();
 
-
 		parent::__construct($cientFactory, $OAuthFactory);
 	}
 
