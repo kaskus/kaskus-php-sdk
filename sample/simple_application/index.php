@@ -3,12 +3,16 @@
 	session_start();
 
 	// configuration
-	$consumerKey = 'YOUR CONSUMER KEY';
-	$consumerSecret = 'YOUR CONSUMER SECRET';
-	$callbackUrl = 'http://localhost:8000'; // e.g. http://yourapplication.com
+	//todo: revert this
+	//$consumerKey = 'YOUR_API_KEY';
+	//$consumerSecret = 'YOUR_API_SECRET';
+	//$callbackUrl = 'http://localhost:8000'; // e.g. http://yourapplication.com
+	$consumerKey = '03f0968bdbd3462e77ff719b717f40';
+	$consumerSecret = 'b0b1338bcda983fe77342bab138951';
+	$callbackUrl = 'http://valdie.phpsdk-kaskus.dev'; // e.g. http://yourapplication.com
 
 	// creating client
-	$client = new \Kaskus\KaskusClient($consumerKey, $consumerSecret);
+	$client = new \Kaskus\Client\KaskusClient($consumerKey, $consumerSecret);
 
 	if (isset($_POST['login'])) {
 		// attempt to get request token
@@ -16,7 +20,7 @@
 		$authorizeUrl = $client->getAuthorizeUrl($requestToken['oauth_token']);
 		$_SESSION['tokenSecret'] = $requestToken['oauth_token_secret'];
 		header('Location: ' . $authorizeUrl);
-	} elseif ($_GET['oauth_token'] && $_GET['token'] && $_GET['oauth_verifier']) {
+	} elseif (isset($_GET['oauth_token']) && isset($_GET['token']) && isset($_GET['oauth_verifier'])) {
 		$requestTokenSecret = $_SESSION['tokenSecret'];
 		$client->setCredentials($_GET['oauth_token'], $requestTokenSecret);
 		$accessToken = $client->getAccessToken();
@@ -24,7 +28,7 @@
 			$client->setCredentials($accessToken['oauth_token'], $accessToken['oauth_token_secret']);
 			try {
 				$response = $client->get('user');
-				$userInfo = $response->json();
+				$userInfo = json_decode($response->getBody(), true);
 				$profilePicture = $userInfo['profilepicture'];
 			} catch (\Kaskus\Exceptions\KaskusRequestException $exception) {
 				// Kaskus Api returned an error

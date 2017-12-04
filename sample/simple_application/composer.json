@@ -1,0 +1,5 @@
+{
+  "require": {
+    "kaskus/kaskus-php-sdk": "dev-development-support-php7.1"
+  }
+}

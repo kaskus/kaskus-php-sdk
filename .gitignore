@@ -4,6 +4,7 @@ nbproject/
 .idea/
 .vscode/
 /vendor
+/sample/*/vendor
 /build
 /others/build/build/*
 composer.phar
