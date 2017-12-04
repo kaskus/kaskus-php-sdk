@@ -2,6 +2,7 @@
 namespace Kaskus\Client;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Subscriber\Oauth\Oauth1;
 use Kaskus\Client\ClientFactory;
 use Kaskus\Client\OAuthFactory;
 use Kaskus\General\Tests\TestCase;
@@ -33,7 +34,10 @@ class BaseKaskusClientTest extends TestCase
 		$this->clientFactory = $this->getMockWithoutConstructor(ClientFactory::class);
 		$this->clientFactory->method('create')->willReturn($client);
 
+		$oauth = $this->getMockBuilder('object')->setMethods(['__invoke'])->getMock();
+
 		$this->oauthFactory = $this->getMockWithoutConstructor(OAuthFactory::class);
+		$this->oauthFactory->method('create')->willReturn($oauth);
 
 		return new BaseKaskusClient(
 			$this->clientFactory,

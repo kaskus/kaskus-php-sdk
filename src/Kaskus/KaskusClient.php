@@ -18,53 +18,20 @@ class KaskusClient extends BaseKaskusClient
 	public function __construct(
 		$consumerKey,
 		$consumerSecret,
-		$baseUrl = null
+		$baseUri = null
 	) {
 		$this->consumerKey = $consumerKey;
 		$this->consumerSecret = $consumerSecret;
 
-		if (isset($baseUrl)) {
-			$this->baseUrl = $baseUrl;
+		if (isset($baseUri)) {
+			$this->baseUri = $baseUri;
 		}
 
 		$cientFactory = new ClientFactory();
 		$OAuthFactory = new OAuthFactory();
 
+
 		parent::__construct($cientFactory, $OAuthFactory);
-
-		$this->addUnauthenticatedListener();
-	}
-
-	public function addUnauthenticatedListener()
-	{
-		$config = array(
-			'consumer_key' => $this->consumerKey,
-			'consumer_secret' => $this->consumerSecret
-		);
-
-		$this->unauthenticatedOAuthListener = $this->addListener($config);
-	}
-
-	public function removeUnauthenticatedListener()
-	{
-		$this->removeListener($this->unauthenticatedOAuthListener);
-	}
-
-	public function addAuthenticatedListener()
-	{
-		$config = array(
-			'consumer_key' => $this->consumerKey,
-			'consumer_secret' => $this->consumerSecret,
-			'token' => $this->tokenKey,
-			'token_secret' => $this->tokenSecret
-		);
-
-		$this->authenticatedOAuthListener = $this->addListener($config);
-	}
-
-	public function removeAuthenticatedListener()
-	{
-		$this->removeListener($this->authenticatedOAuthListener);
 	}
 
 	public function setCredentials($tokenKey, $tokenSecret)
@@ -78,7 +45,7 @@ class KaskusClient extends BaseKaskusClient
 
 	public function getAuthorizeUrl($token)
 	{
-		$url = $this->baseUrl . '/authorize?token=' . urlencode($token);
+		$url = $this->baseUri . '/authorize?token=' . urlencode($token);
 		return $url;
 	}
 

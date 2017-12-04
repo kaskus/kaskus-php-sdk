@@ -1,19 +1,22 @@
 <?php
 namespace Kaskus\Client;
 
-use GuzzleHttp\Subscriber\Oauth\Oauth1;
 use Kaskus\Client\ClientFactory;
 use Kaskus\Client\HasHandlerStackTrait;
 use Kaskus\Client\OAuthFactory;
-use \Psr\Http\Message\RequestInterface;
-use \Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 class BaseKaskusClient
 {
+	const UNAUTHENTUCATED_STACK = 'unauthenticated';
+	const AUTHENTUCATED_STACK = 'authenticated';
+
 	use HasHandlerStackTrait;
 
-	//protected $baseUrl = 'https://www.kaskus.co.id/api/oauth/';
-	protected $baseUrl = 'https://webbranches-forum.kaskus.co.id/api/live/';
+	//todo: revert this
+	//protected $baseUri = 'https://www.kaskus.co.id/api/oauth/';
+	protected $baseUri = 'https://webbranches-forum.kaskus.co.id/api/live/';
 	protected $consumerKey;
 	protected $consumerSecret;
 
@@ -23,14 +26,10 @@ class BaseKaskusClient
 	) {
 		$this->oauthFactory = $oauthFactory;
 
+		$this->addUnauthenticatedListener();
+
 		$clientConfig = [
-			'base_url' => $this->baseUrl,
-			'defaults' => array(
-				'auth' => 'oauth',
-				'headers' => array(
-					'Return-Type' => 'text/json'
-				)
-			),
+			'base_uri' => $this->baseUri,
 			'handler' => $this->getHandlerStack()
 		];
 		$this->client = $clientFactory->create($clientConfig);
@@ -38,38 +37,38 @@ class BaseKaskusClient
 
 	public function get($uri, array $options = [])
 	{
-		try {
-			$result = $this->client->get($uri, $options);
-		} catch (Exception $e) {
-			$this->handleException($e);
-		}
-
+		$result = $this->client->get($uri, $options);
 		return $result;
 	}
 
 	public function head($uri, array $options = [])
 	{
-		return $this->client->head($uri, $options);
+		$result = $this->client->head($uri, $options);
+		return $result;
 	}
 
 	public function put($uri, array $options = [])
 	{
-		return $this->client->put($uri, $options);
+		$result = $this->client->put($uri, $options);
+		return $result;
 	}
 
 	public function post($uri, array $options = [])
 	{
-		return $this->client->post($uri, $options);
+		$result = $this->client->post($uri, $options);
+		return $result;
 	}
 
 	public function patch($uri, array $options = [])
 	{
-		return $this->client->patch($uri, $options);
+		$result = $this->client->patch($uri, $options);
+		return $result;
 	}
 
 	public function delete($uri, array $options = [])
 	{
-		return $this->client->delete($uri, $options);
+		$result = $this->client->delete($uri, $options);
+		return $result;
 	}
 
 	public function send(RequestInterface $request, array $options = [])
@@ -79,6 +78,8 @@ class BaseKaskusClient
 		} catch (RequestException $e) {
 			$this->handleException($e);
 		}
+
+		return $result;
 	}
 
 	public function getRequestToken($callback)
@@ -96,16 +97,49 @@ class BaseKaskusClient
 		return $requestToken;
 	}
 
-	protected function addListener($config)
+	public function addUnauthenticatedListener()
+	{
+		$config = array(
+			'consumer_key' => $this->consumerKey,
+			'consumer_secret' => $this->consumerSecret,
+			'token_secret' => null,
+		);
+
+		$this->unauthenticatedOAuthListener = $this->addListener(KaskusClient::UNAUTHENTUCATED_STACK, $config);
+	}
+
+	public function removeUnauthenticatedListener()
+	{
+		$this->removeListener(self::UNAUTHENTUCATED_STACK);
+	}
+
+	public function addAuthenticatedListener()
+	{
+		$config = array(
+			'consumer_key' => $this->consumerKey,
+			'consumer_secret' => $this->consumerSecret,
+			'token' => $this->tokenKey,
+			'token_secret' => $this->tokenSecret
+		);
+
+		$this->authenticatedOAuthListener = $this->addListener(self::AUTHENTUCATED_STACK, $config);
+	}
+
+	public function removeAuthenticatedListener()
+	{
+		$this->removeListener(self::AUTHENTUCATED_STACK);
+	}
+
+	protected function addListener($identifier, $config)
 	{
 		$listener = $this->oauthFactory->create($config);
-		$this->getHandlerStack()->push($listener);
+		$this->getHandlerStack()->push($listener, $identifier);
 
 		return $listener;
 	}
 
-	protected function removeListener(OAuth1 $listener)
+	protected function removeListener($identifier)
 	{
-		$this->getHandlerStack()->remove($listener);
+		$this->getHandlerStack()->remove($identifier);
 	}
 }

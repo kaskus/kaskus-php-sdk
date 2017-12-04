@@ -3,6 +3,8 @@
 define('KASKUS_SDK_SRC_DIR', __DIR__.'/../src/Kaskus/');
 require __DIR__ . '/../autoload.php';
 
+
+//todo: revert this
 // $consumerKey = 'YOUR_API_KEY';
 // $consumerSecret = 'YOUR_API_SECRET';
 
@@ -12,8 +14,8 @@ $consumerSecret = 'b0b1338bcda983fe77342bab138951';
 $client = new \Kaskus\Client\KaskusClient($consumerKey, $consumerSecret);
 
 try {
-    $response = $client->get('v1/hot_threads');
-    $forumList = $response->json();
+    $response = $client->get('forumlist');
+    $forumList = (string) $response->getBody();
     print_r($forumList);
 } catch (\Kaskus\Exceptions\KaskusRequestException $exception) {
     // Kaskus Api returned an error
