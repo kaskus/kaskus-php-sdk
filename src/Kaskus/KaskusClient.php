@@ -3,17 +3,12 @@ namespace Kaskus\Client;
 
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ServerException;
-use GuzzleHttp\Subscriber\Oauth\Oauth1;
+use Kaskus\Client\ClientFactory;
+use Kaskus\Client\OAuthFactory;
 use Kaskus\Exceptions\KaskusClientException;
 use Kaskus\Exceptions\KaskusServerException;
 use Kaskus\Exceptions\ResourceNotFoundException;
 use Kaskus\Exceptions\UnauthorizedException;
-
-use \Psr\Http\Message\RequestInterface;
-use \Psr\Http\Message\ResponseInterface;
-
-use Kaskus\Client\ClientFactory;
-use Kaskus\Client\OAuthFactory;
 
 class KaskusClient extends BaseKaskusClient
 {

@@ -5,6 +5,8 @@ use GuzzleHttp\Subscriber\Oauth\Oauth1;
 use Kaskus\Client\ClientFactory;
 use Kaskus\Client\HasHandlerStackTrait;
 use Kaskus\Client\OAuthFactory;
+use \Psr\Http\Message\RequestInterface;
+use \Psr\Http\Message\ResponseInterface;
 
 class BaseKaskusClient
 {
