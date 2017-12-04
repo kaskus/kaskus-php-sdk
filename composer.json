@@ -6,19 +6,37 @@
     "sdk"
   ],
   "type": "library",
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/kaskus/general.git"
+    }
+  ],
   "require": {
     "php": ">=5.4.0",
-    "guzzlehttp/guzzle": "5.*",
-    "guzzlehttp/oauth-subscriber": "0.2"
+    "guzzlehttp/guzzle": "6",
+    "guzzlehttp/oauth-subscriber": "0.3",
+    "kaskus/general": "0.4.5.1"
   },
   "require-dev": {
-    "phpunit/phpunit": "~4.0",
+    "phpunit/phpunit": "5.7.*",
     "squizlabs/php_codesniffer": "2.*",
     "phpmd/phpmd": "@stable"
   },
   "autoload": {
     "psr-4": {
       "Kaskus\\": "src/Kaskus/"
-    }
-  }
+    },
+		"classmap": [
+			"src/Kaskus/"
+		]
+  },
+  "autoload-dev": {
+		"psr-4": {
+			"Kaskus\\General\\Tests\\": "vendor/kaskus/general/tests/Tests/"
+		},
+		"classmap": [
+			"vendor/kaskus/general/tests/Tests/Fakes"
+		]
+	}
 }

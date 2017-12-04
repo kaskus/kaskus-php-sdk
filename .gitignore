@@ -1,2 +1,12 @@
-vendor/
+# Folder     #
+###################
+nbproject/
+.idea/
+.vscode/
+/vendor
+/build
+/others/build/build/*
+composer.phar
+.idea
+.env
 
