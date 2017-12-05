@@ -11,9 +11,6 @@ use Kaskus\Exceptions\UnauthorizedException;
 
 class KaskusClient extends BaseKaskusClient
 {
-	protected $unauthenticatedOauthListener;
-	protected $authenticatedOauthListener;
-
 	public function __construct(
 		$consumerKey,
 		$consumerSecret,

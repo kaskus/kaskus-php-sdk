@@ -22,6 +22,9 @@ class BaseKaskusClient
 	protected $consumerKey;
 	protected $consumerSecret;
 
+	protected $unauthenticatedOauthListener;
+	protected $authenticatedOauthListener;
+
 	public function __construct(
 		ClientFactory $clientFactory,
 		OAuthFactory $oauthFactory
@@ -129,6 +132,8 @@ class BaseKaskusClient
 		);
 
 		$this->authenticatedOAuthListener = $this->addListener(self::AUTHENTUCATED_STACK, $config);
+
+		$this->authenticatedOAuthListener;
 	}
 
 	public function removeAuthenticatedListener()
