@@ -1,6 +1,8 @@
 <?php
 namespace Kaskus\Client;
 
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ServerException;
 use Kaskus\Client\ClientFactory;
 use Kaskus\Client\HasHandlerStackTrait;
 use Kaskus\Client\OAuthFactory;
@@ -145,5 +147,35 @@ class BaseKaskusClient
 	protected function removeListener($identifier)
 	{
 		$this->getHandlerStack()->remove($identifier);
+	}
+
+	protected function handleException(RequestException $exception)
+	{
+		$response = $exception->getResponse();
+		$statusCode = $response->getStatusCode();
+
+		if ($statusCode >= 500) {
+			$bodyContent = $response->getBody()->getContents();
+			throw new KaskusServerException(print_r($bodyContent, true), $statusCode);
+		}
+
+		try {
+			$error = $response->json();
+		} catch (\RuntimeException $e) {
+			throw new KaskusServerException($e->getMessage());
+		}
+
+		if (isset($error['errormessage'])) {
+			$errorMessage = $error['errormessage'];
+
+			if ($statusCode === 401) {
+				throw new UnauthorizedException($errorMessage);
+			} elseif ($statusCode === 404) {
+				throw new ResourceNotFoundException();
+			}
+			throw new KaskusClientException($errorMessage);
+		}
+
+		throw new KaskusServerException(print_r($error, true), $statusCode);
 	}
 }

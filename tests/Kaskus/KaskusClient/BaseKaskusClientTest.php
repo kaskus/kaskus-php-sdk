@@ -2,6 +2,8 @@
 namespace Kaskus\Client;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
 use Kaskus\Client\ClientFactory;
 use Kaskus\Client\OAuthFactory;
@@ -100,4 +102,24 @@ class BaseKaskusClientTest extends TestCase
 		$kaskusClient = $this->createObject();
 		$kaskusClient->handleException($exception);
 	} */
+
+	public function test_handleException_ReturnCorrectValue()
+	{
+		$expectedReturnCode = 501;
+		$exception = $this->getMockWithoutConstructor(RequestException::class);
+
+		$exceptionBody = new DynamicClass();
+		$exceptionBody->getContents = function() {
+			//
+		};
+
+		$exceptionResponse = $this->getMockWithoutConstructor(ResponseInterface::class);
+		$exceptionResponse->method('getStatusCode')->willReturn($expectedReturnCode);
+		$exceptionResponse->method('getBody')->willReturn();
+		$exceptionResponse->method('json')->willReturn($this->expectedJson);
+		$exception->method('getResponse')->willReturn($exceptionResponse);
+
+		$kaskusClient = $this->createObject();
+		$kaskusClient->handleException($exception);
+	}
 }

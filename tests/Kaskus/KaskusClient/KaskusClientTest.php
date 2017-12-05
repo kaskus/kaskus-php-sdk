@@ -93,18 +93,4 @@ class KaskusClientTest extends TestCase
 		$kaskusClient = $this->createObject();
 		$kaskusClient->getAccessToken($token);
 	} */
-
-	/* public function test_handleException_ReturnCorrectValue()
-	{
-		$exception = $this->getMockWithoutConstructor(RequestException::class);
-
-		$exceptionResponse = $this->getMockWithoutConstructor(ResponseInterface::class);
-		$exceptionResponse->method('getStatusCode')->willReturn($this->expectedReturnCode);
-		$exceptionResponse->method('getBody')->willReturn($expectedReturnCode);
-		$exceptionResponse->method('json')->willReturn($this->expectedJson);
-		$exception->method('getResponse')->willReturn($exceptionResponse);
-
-		$kaskusClient = $this->createObject();
-		$kaskusClient->handleException($exception);
-	} */
 }
