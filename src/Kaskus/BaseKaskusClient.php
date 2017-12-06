@@ -21,9 +21,8 @@ class BaseKaskusClient
 	protected $baseUri = 'https://webbranches-forum.kaskus.co.id/api/live/';
 	protected $consumerKey;
 	protected $consumerSecret;
-
-	protected $unauthenticatedOauthListener;
-	protected $authenticatedOauthListener;
+	protected $unauthenticatedListener;
+	protected $authenticatedListener;
 
 	public function __construct(
 		ClientFactory $clientFactory,
@@ -114,7 +113,7 @@ class BaseKaskusClient
 			'token_secret' => null,
 		);
 
-		$this->unauthenticatedOAuthListener = $this->addListener(KaskusClient::UNAUTHENTUCATED_STACK, $config);
+		$this->unauthenticatedListener = $this->addListener(self::UNAUTHENTUCATED_STACK, $config);
 	}
 
 	public function removeUnauthenticatedListener()
@@ -131,9 +130,11 @@ class BaseKaskusClient
 			'token_secret' => $this->tokenSecret
 		);
 
-		$this->authenticatedOAuthListener = $this->addListener(self::AUTHENTUCATED_STACK, $config);
+		if ($this->authenticatedListener !== null) {
+			$this->removeListener(self::AUTHENTUCATED_STACK);
+		}
 
-		$this->authenticatedOAuthListener;
+		$this->authenticatedListener = $this->addListener(self::AUTHENTUCATED_STACK, $config);
 	}
 
 	public function removeAuthenticatedListener()

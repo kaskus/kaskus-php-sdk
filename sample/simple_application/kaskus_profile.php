@@ -5,7 +5,7 @@ session_start();
 $consumer_key = '03f0968bdbd3462e77ff719b717f40';
 $consumer_secret = 'b0b1338bcda983fe77342bab138951';
 $client = new \Kaskus\Client\KaskusClient($consumer_key, $consumer_secret);
-$authorized = TRUE;
+$authorized = FALSE;
 
 // // Set temporary token
 // $token = $_GET['oauth_token'];

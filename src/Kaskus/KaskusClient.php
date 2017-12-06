@@ -46,7 +46,7 @@ class KaskusClient extends BaseKaskusClient
 
 	public function getAccessToken()
 	{
-		if (!$this->authenticatedOauthListener) {
+		if ($this->authenticatedListener === null) {
 			throw new KaskusClientException('You have to set credentials with authorized request token!');
 		}
 

@@ -32,12 +32,20 @@ else if (isset($_POST['logout']))
 	header('Location: index.php');
 }
 
-if (isset($_GET['oauth_token']) && isset($_GET['token']) && isset($_GET['oauth_verifier']))
+if (isset($_SESSION['authorized']) && $_SESSION['authorized'] === TRUE)
+{
+	$token_key = $_SESSION['token_key'];
+	$token_secret = $_SESSION['token_secret'];
+
+	$authorized = TRUE;
+}
+else if (isset($_GET['oauth_token']) && isset($_GET['token']) && isset($_GET['oauth_verifier']))
 {
 	$token_key = $_GET['oauth_token'];
 	$token_secret = $_SESSION['token_secret'];
 
 	$client->setCredentials($token_key, $token_secret);
+
 	$access_token = $client->getAccessToken();
 
 	if ($access_token['access'] === 'GRANTED')
@@ -57,13 +65,7 @@ if (isset($_GET['oauth_token']) && isset($_GET['token']) && isset($_GET['oauth_v
 		unset($_SESSION['token_secret']);
 	}
 }
-else if (isset($_SESSION['authorized']) && $_SESSION['authorized'] === TRUE)
-{
-	$token_key = $_SESSION['token_key'];
-	$token_secret = $_SESSION['token_secret'];
-
-	$authorized = TRUE;
-} else
+else
 {
 	$authorized = FALSE;
 }
