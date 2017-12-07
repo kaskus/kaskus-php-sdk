@@ -6,6 +6,10 @@ use GuzzleHttp\Exception\ServerException;
 use Kaskus\Client\ClientFactory;
 use Kaskus\Client\HasHandlerStackTrait;
 use Kaskus\Client\OAuthFactory;
+use Kaskus\Exceptions\KaskusClientException;
+use Kaskus\Exceptions\KaskusServerException;
+use Kaskus\Exceptions\ResourceNotFoundException;
+use Kaskus\Exceptions\UnauthorizedException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -21,6 +25,7 @@ class BaseKaskusClient
 	protected $baseUri = 'https://webbranches-forum.kaskus.co.id/api/live/';
 	protected $consumerKey;
 	protected $consumerSecret;
+
 	protected $unauthenticatedListener;
 	protected $authenticatedListener;
 
@@ -90,6 +95,21 @@ class BaseKaskusClient
 		return $result;
 	}
 
+	public function setCredentials($tokenKey, $tokenSecret)
+	{
+		$this->tokenKey = $tokenKey;
+		$this->tokenSecret = $tokenSecret;
+
+		$this->removeUnauthenticatedListener();
+		$this->addAuthenticatedListener();
+	}
+
+	public function getAuthorizeUrl($token)
+	{
+		$url = $this->baseUri . '/authorize?token=' . urlencode($token);
+		return $url;
+	}
+
 	public function getRequestToken($callback)
 	{
 		$options = [
@@ -105,7 +125,20 @@ class BaseKaskusClient
 		return $requestToken;
 	}
 
-	public function addUnauthenticatedListener()
+	public function getAccessToken()
+	{
+		if ($this->authenticatedListener === null) {
+			throw new KaskusClientException('You have to set credentials with authorized request token!');
+		}
+
+		$response = $this->client->get('accesstoken');
+		$tokenResponse = $response->getBody()->getContents();
+		parse_str($tokenResponse, $accessToken);
+
+		return $accessToken;
+	}
+
+	protected function addUnauthenticatedListener()
 	{
 		$config = array(
 			'consumer_key' => $this->consumerKey,
@@ -113,15 +146,15 @@ class BaseKaskusClient
 			'token_secret' => null,
 		);
 
-		$this->unauthenticatedListener = $this->addListener(self::UNAUTHENTUCATED_STACK, $config);
+		$this->unauthenticatedListener = $this->addListener(KaskusClient::UNAUTHENTUCATED_STACK, $config);
 	}
 
-	public function removeUnauthenticatedListener()
+	protected function removeUnauthenticatedListener()
 	{
 		$this->removeListener(self::UNAUTHENTUCATED_STACK);
 	}
 
-	public function addAuthenticatedListener()
+	protected function addAuthenticatedListener()
 	{
 		$config = array(
 			'consumer_key' => $this->consumerKey,
@@ -137,7 +170,7 @@ class BaseKaskusClient
 		$this->authenticatedListener = $this->addListener(self::AUTHENTUCATED_STACK, $config);
 	}
 
-	public function removeAuthenticatedListener()
+	protected function removeAuthenticatedListener()
 	{
 		$this->removeListener(self::AUTHENTUCATED_STACK);
 	}
@@ -166,7 +199,8 @@ class BaseKaskusClient
 		}
 
 		try {
-			$error = $response->json();
+			$error_json = $response->getBody()->getContents();
+			$error = json_decode($error_json, true);
 		} catch (\RuntimeException $e) {
 			throw new KaskusServerException($e->getMessage());
 		}
@@ -179,6 +213,7 @@ class BaseKaskusClient
 			} elseif ($statusCode === 404) {
 				throw new ResourceNotFoundException();
 			}
+
 			throw new KaskusClientException($errorMessage);
 		}
 

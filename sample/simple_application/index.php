@@ -31,7 +31,6 @@ else if (isset($_POST['logout']))
 
 	header('Location: index.php');
 }
-
 if (isset($_SESSION['authorized']) && $_SESSION['authorized'] === TRUE)
 {
 	$token_key = $_SESSION['token_key'];

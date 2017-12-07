@@ -7,34 +7,37 @@ use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
 use Kaskus\Client\ClientFactory;
 use Kaskus\Client\OAuthFactory;
+use Kaskus\Exceptions\KaskusClientException;
+use Kaskus\Exceptions\KaskusServerException;
+use Kaskus\Exceptions\ResourceNotFoundException;
+use Kaskus\Exceptions\UnauthorizedException;
 use Kaskus\General\Tests\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use \DynamicClass;
-
 
 class BaseKaskusClientTest extends TestCase
 {
 	public function setUp()
 	{
 		parent::setUp();
+
+		$this->request = $this->getMockWithoutConstructor(RequestInterface::class);
+
+		$this->clientFactory = $this->getMockWithoutConstructor(ClientFactory::class);
+		$this->client = $this->getMockWithoutConstructor(Client::class);
+
+		$this->expectedStatus = 200;
+		$this->expectedBody = '';
 	}
 
 	private function createObject()
 	{
-		$responseBody = new DynamicClass();
-		$responseBody->getBody = function() {
-			return '';
-		};
+		$this->response = $this->createResponse($this->expectedStatus, $this->expectedBody);
 
-		$response = $this->getMockWithoutConstructor(ResponseInterface::class);
-		$response->method('getBody')->willReturn($responseBody);
+		$this->client->method('__call')->willReturn($this->response);
 
-		$client = $this->getMockWithoutConstructor(Client::class);
-		$client->method('__call')->willReturn($response);
-
-		$this->clientFactory = $this->getMockWithoutConstructor(ClientFactory::class);
-		$this->clientFactory->method('create')->willReturn($client);
+		$this->clientFactory->method('create')->willReturn($this->client);
 
 		$oauth = $this->getMockBuilder('object')->setMethods(['__invoke'])->getMock();
 
@@ -45,6 +48,20 @@ class BaseKaskusClientTest extends TestCase
 			$this->clientFactory,
 			$this->oauthFactory
 		);
+	}
+
+	private function createResponse($statusCode, $bodyContents)
+	{
+		$responseBody = new DynamicClass();
+		$responseBody->getContents = function() use ($bodyContents) {
+			return $bodyContents;
+		};
+
+		$response = $this->getMockWithoutConstructor(ResponseInterface::class);
+		$response->method('getBody')->willReturn($responseBody);
+		$response->method('getStatusCode')->willReturn($statusCode);
+
+		return $response;
 	}
 
 	public function test_getRequestToken_ReturnCorrectValue()
@@ -81,45 +98,101 @@ class BaseKaskusClientTest extends TestCase
 		];
 	}
 
-	/* public function test_getAccessToken_ReturnCorrectValue()
+	public function test_send_RequestInterface_Success_ReturnCorrectInstance()
 	{
+		$request = $this->request;
+		$options = ['options'];
+
+		$expectedStatus = 200;
+		$expectedBody = 'body';
+		$response = $this->createResponse($expectedStatus, $expectedBody);
+		$this->client->method('send')->willReturn($response);
+
+		$baseKaskusClient = $this->createObject();
+		$result = $baseKaskusClient->send($request, $options);
+
+		$this->assertInstanceOf(ResponseInterface::class, $result);
+	}
+
+	/**
+	 * @dataProvider errorProvider
+	 */
+	public function test_send_HasError_ThrowException($errorCode, $exceptionClass, $errorBody)
+	{
+		$this->expectException($exceptionClass);
+		$this->client->method('send')->will($this->returnCallback(
+			function() use ($errorCode, $errorBody) {
+				$body = $errorBody;
+				$response = $this->createResponse($errorCode, json_encode($body));
+				$exception = $this->getMockWithoutConstructor(RequestException::class);
+				$exception->method('getResponse')->willReturn($response);
+				throw $exception;
+			}
+		));
+
+		$request = $this->request;
+		$options = ['options'];
+
+		$baseKaskusClient = $this->createObject();
+		$baseKaskusClient->send($request, $options);
+	}
+
+	/**
+	 * @dataProvider errorProvider
+	 */
+	/* public function test_send_HasRuntimeError_ThrowException($errorCode, $exceptionClass, $errorBody)
+	{
+		$this->expectException($exceptionClass);
+		$this->client->method('send')->will($this->returnCallback(
+			function() use ($errorCode, $errorBody) {
+				$body = $errorBody;
+				$response = $this->createResponse($errorCode, json_encode($body));
+				$exception = $this->getMockWithoutConstructor(RequestException::class);
+				$exception->method('getResponse')->willReturn($response);
+				throw $exception;
+			}
+		));
+
+		$request = $this->request;
+		$options = ['options'];
+
+		$baseKaskusClient = $this->createObject();
+		$baseKaskusClient->send($request, $options);
+	} */
+
+	public function errorProvider()
+	{
+		return [
+			'error401' => [401, UnauthorizedException::class, ['errormessage' => 'error']],
+			'error404' => [404, ResourceNotFoundException::class, ['errormessage' => 'error']],
+			'error404_noerror_message' => [404, KaskusServerException::class, []],
+			'error405' => [405, KaskusClientException::class, ['errormessage' => 'error']],
+			'error500' => [500, KaskusServerException::class, ['errormessage' => 'error']]
+		];
+	}
+
+	public function test_getAccessToken_notSetCredentials_ThrowKaskusClientException()
+	{
+		$this->expectException(KaskusClientException::class);
 		$token = 'token';
 
-		$kaskusClient = $this->createObject();
-		$kaskusClient->getAccessToken($token);
-	} */
+		$baseKaskusClient = $this->createObject();
+		$baseKaskusClient->getAccessToken();
+	}
 
-	/* public function test_handleException_ReturnCorrectValue()
+	public function test_getAccessToken_setCredentials_ReturnCorrectValue()
 	{
-		$exception = $this->getMockWithoutConstructor(RequestException::class);
+		$tokenKey = 'token';
+		$tokenSecret = 'token_1234secret';
 
-		$exceptionResponse = $this->getMockWithoutConstructor(ResponseInterface::class);
-		$exceptionResponse->method('getStatusCode')->willReturn($this->expectedReturnCode);
-		$exceptionResponse->method('getBody')->willReturn($expectedReturnCode);
-		$exceptionResponse->method('json')->willReturn($this->expectedJson);
-		$exception->method('getResponse')->willReturn($exceptionResponse);
+		$this->expectedBody = 'token=token';
+		$expectedParamArr = [];
+		parse_str($this->expectedBody, $expectedParamArr);
 
-		$kaskusClient = $this->createObject();
-		$kaskusClient->handleException($exception);
-	} */
+		$baseKaskusClient = $this->createObject();
+		$baseKaskusClient->setCredentials($tokenKey, $tokenSecret);
+		$result = $baseKaskusClient->getAccessToken();
 
-	public function test_handleException_ReturnCorrectValue()
-	{
-		$expectedReturnCode = 501;
-		$exception = $this->getMockWithoutConstructor(RequestException::class);
-
-		$exceptionBody = new DynamicClass();
-		$exceptionBody->getContents = function() {
-			//
-		};
-
-		$exceptionResponse = $this->getMockWithoutConstructor(ResponseInterface::class);
-		$exceptionResponse->method('getStatusCode')->willReturn($expectedReturnCode);
-		$exceptionResponse->method('getBody')->willReturn();
-		$exceptionResponse->method('json')->willReturn($this->expectedJson);
-		$exception->method('getResponse')->willReturn($exceptionResponse);
-
-		$kaskusClient = $this->createObject();
-		$kaskusClient->handleException($exception);
+		$this->assertEquals($expectedParamArr, $result);
 	}
 }

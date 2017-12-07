@@ -4,7 +4,6 @@ namespace Kaskus\Client;
 use GuzzleHttp\Exception\ClientException;
 use Kaskus\Client\ClientFactory;
 use Kaskus\Client\OAuthFactory;
-use Kaskus\Exceptions\KaskusClientException;
 use Kaskus\Exceptions\KaskusServerException;
 use Kaskus\Exceptions\ResourceNotFoundException;
 use Kaskus\Exceptions\UnauthorizedException;
@@ -27,33 +26,5 @@ class KaskusClient extends BaseKaskusClient
 		$OAuthFactory = new OAuthFactory();
 
 		parent::__construct($cientFactory, $OAuthFactory);
-	}
-
-	public function setCredentials($tokenKey, $tokenSecret)
-	{
-		$this->tokenKey = $tokenKey;
-		$this->tokenSecret = $tokenSecret;
-
-		$this->removeUnauthenticatedListener();
-		$this->addAuthenticatedListener();
-	}
-
-	public function getAuthorizeUrl($token)
-	{
-		$url = $this->baseUri . '/authorize?token=' . urlencode($token);
-		return $url;
-	}
-
-	public function getAccessToken()
-	{
-		if ($this->authenticatedListener === null) {
-			throw new KaskusClientException('You have to set credentials with authorized request token!');
-		}
-
-		$response = $this->client->get('accesstoken');
-		$tokenResponse = $response->getBody()->getContents();
-		parse_str($tokenResponse, $accessToken);
-
-		return $accessToken;
 	}
 }

@@ -4,7 +4,6 @@ ini_set('memory_limit', '-1');
 
 require_once 'vendor/autoload.php';
 require_once 'Autoloader.php';
-require_once 'PhpunitConfig.php';
 
 AutoLoader::registerDirectory(realpath(dirname(__FILE__)."/../"));
 define('BASEPATH', '/');
