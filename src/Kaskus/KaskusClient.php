@@ -3,7 +3,7 @@ namespace Kaskus\Client;
 
 use GuzzleHttp\Exception\ClientException;
 use Kaskus\Client\ClientFactory;
-use Kaskus\Client\OAuthFactory;
+use Kaskus\Client\OAuth1Factory;
 use Kaskus\Exceptions\KaskusServerException;
 use Kaskus\Exceptions\ResourceNotFoundException;
 use Kaskus\Exceptions\UnauthorizedException;
@@ -23,7 +23,7 @@ class KaskusClient extends BaseKaskusClient
 		}
 
 		$cientFactory = new ClientFactory();
-		$OAuthFactory = new OAuthFactory();
+		$OAuthFactory = new OAuth1Factory();
 
 		parent::__construct($cientFactory, $OAuthFactory);
 	}

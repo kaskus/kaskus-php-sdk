@@ -3,21 +3,17 @@ require __DIR__ . '/vendor/autoload.php';
 session_start();
 
 // configuration
-//todo: revert this
-//$consumerKey = 'YOUR_API_KEY';
-//$consumerSecret = 'YOUR_API_SECRET';
-//$callbackUrl = 'http://localhost:8000'; // e.g. http://yourapplication.com
-$consumerKey = '03f0968bdbd3462e77ff719b717f40';
-$consumerSecret = 'b0b1338bcda983fe77342bab138951';
-$callbackUrl = 'http://valdie.phpsdk-kaskus.dev/index.php'; // e.g. http://yourapplication.com
+$consumer_key = 'YOUR_API_KEY';
+$consumer_secret = 'YOUR_API_SECRET';
+$callback_url = 'http://localhost:8000'; // e.g. http://yourapplication.com
 
 // creating client
-$client = new \Kaskus\Client\KaskusClient($consumerKey, $consumerSecret);
+$client = new \Kaskus\Client\KaskusClient($consumer_key, $consumer_secret);
 $authenticated = FALSE;
 
 if (isset($_POST['login']))
 {
-	$request_token = $client->getRequestToken($callbackUrl);
+	$request_token = $client->getRequestToken($callback_url);
 	$authorize_url = $client->getAuthorizeUrl($request_token['oauth_token']);
 	$_SESSION['token_secret'] = $request_token['oauth_token_secret'];
 

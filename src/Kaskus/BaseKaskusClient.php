@@ -20,9 +20,7 @@ class BaseKaskusClient
 	const UNAUTHENTUCATED_STACK = 'unauthenticated';
 	const AUTHENTUCATED_STACK = 'authenticated';
 
-	//todo: revert this
-	//protected $baseUri = 'https://www.kaskus.co.id/api/oauth/';
-	protected $baseUri = 'https://webbranches-forum.kaskus.co.id/api/live/';
+	protected $baseUri = 'https://www.kaskus.co.id/api/oauth/';
 	protected $consumerKey;
 	protected $consumerSecret;
 	protected $unauthenticatedListener;

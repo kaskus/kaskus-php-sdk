@@ -2,8 +2,8 @@
 require __DIR__ . '/vendor/autoload.php';
 session_start();
 
-$consumer_key = '03f0968bdbd3462e77ff719b717f40';
-$consumer_secret = 'b0b1338bcda983fe77342bab138951';
+$consumer_key = 'YOUR_API_KEY';
+$consumer_secret = 'YOUR_API_SECRET';
 $client = new \Kaskus\Client\KaskusClient($consumer_key, $consumer_secret);
 $authenticated = FALSE;
 
