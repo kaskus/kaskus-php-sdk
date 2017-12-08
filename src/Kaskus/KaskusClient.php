@@ -22,9 +22,9 @@ class KaskusClient extends BaseKaskusClient
 			$this->baseUri = $baseUri;
 		}
 
-		$cientFactory = new ClientFactory();
+		$clientFactory = new ClientFactory();
 		$OAuthFactory = new OAuth1Factory();
 
-		parent::__construct($cientFactory, $OAuthFactory);
+		parent::__construct($clientFactory, $OAuthFactory);
 	}
 }
