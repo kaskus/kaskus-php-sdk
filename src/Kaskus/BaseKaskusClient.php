@@ -47,37 +47,67 @@ class BaseKaskusClient
 
 	public function get(string $uri, array $options = [])
 	{
-		$result = $this->client->get($uri, $options);
+		try {
+			$result = $this->client->get($uri, $options);
+		} catch (RequestException $e) {
+			$this->handleException($e);
+		}
+
 		return $result;
 	}
 
 	public function head(string $uri, array $options = [])
 	{
-		$result = $this->client->head($uri, $options);
+		try {
+			$result = $this->client->head($uri, $options);
+		} catch (RequestException $e) {
+			$this->handleException($e);
+		}
+
 		return $result;
 	}
 
 	public function put(string $uri, array $options = [])
 	{
-		$result = $this->client->put($uri, $options);
+		try {
+			$result = $this->client->put($uri, $options);
+		} catch (RequestException $e) {
+			$this->handleException($e);
+		}
+
 		return $result;
 	}
 
 	public function post(string $uri, array $options = [])
 	{
-		$result = $this->client->post($uri, $options);
+		try {
+			$result = $this->client->post($uri, $options);
+		} catch (RequestException $e) {
+			$this->handleException($e);
+		}
+
 		return $result;
 	}
 
 	public function patch(string $uri, array $options = [])
 	{
-		$result = $this->client->patch($uri, $options);
+		try {
+			$result = $this->client->patch($uri, $options);
+		} catch (RequestException $e) {
+			$this->handleException($e);
+		}
+
 		return $result;
 	}
 
 	public function delete(string $uri, array $options = [])
 	{
-		$result = $this->client->delete($uri, $options);
+		try {
+			$result = $this->client->delete($uri, $options);
+		} catch (RequestException $e) {
+			$this->handleException($e);
+		}
+
 		return $result;
 	}
 
