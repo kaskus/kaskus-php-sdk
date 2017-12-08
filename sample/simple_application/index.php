@@ -13,7 +13,7 @@ $callbackUrl = 'http://valdie.phpsdk-kaskus.dev/index.php'; // e.g. http://youra
 
 // creating client
 $client = new \Kaskus\Client\KaskusClient($consumerKey, $consumerSecret);
-$authorized = FALSE;
+$authenticated = FALSE;
 
 if (isset($_POST['login']))
 {
@@ -25,18 +25,18 @@ if (isset($_POST['login']))
 }
 else if (isset($_POST['logout']))
 {
-	unset($_SESSION['authorized']);
+	unset($_SESSION['authenticated']);
 	unset($_SESSION['token_key']);
 	unset($_SESSION['token_secret']);
 
 	header('Location: index.php');
 }
-if (isset($_SESSION['authorized']) && $_SESSION['authorized'] === TRUE)
+if (isset($_SESSION['authenticated']) && $_SESSION['authenticated'] === TRUE)
 {
 	$token_key = $_SESSION['token_key'];
 	$token_secret = $_SESSION['token_secret'];
 
-	$authorized = TRUE;
+	$authenticated = TRUE;
 }
 else if (isset($_GET['oauth_token']) && isset($_GET['token']) && isset($_GET['oauth_verifier']))
 {
@@ -49,24 +49,24 @@ else if (isset($_GET['oauth_token']) && isset($_GET['token']) && isset($_GET['oa
 
 	if ($access_token['access'] === 'GRANTED')
 	{
-		$_SESSION['authorized'] = TRUE;
+		$_SESSION['authenticated'] = TRUE;
 		$_SESSION['token_key'] = $access_token['oauth_token'];
 		$_SESSION['token_secret'] = $access_token['oauth_token_secret'];;
 
 		$token_key = $access_token['oauth_token'];
 		$token_secret = $access_token['oauth_token_secret'];
 
-		$authorized = TRUE;
+		$authenticated = TRUE;
 	}
 	else
 	{
-		$authorized = FALSE;
+		$authenticated = FALSE;
 		unset($_SESSION['token_secret']);
 	}
 }
 else
 {
-	$authorized = FALSE;
+	$authenticated = FALSE;
 }
 
 ?>
@@ -77,11 +77,11 @@ else
 	<title>KASKUS PHP SDK Example</title>
 </head>
 <body>
-	<?php if ($authorized): ?>
+	<?php if ($authenticated): ?>
 		<div>
 			<p>Successfully login with KASKUS, here's your token: </p>
-			<p>Token : <?= $token_key; ?></p>
-			<p>Token Secret : <?= $token_secret; ?></p>
+			<p>Token : <?php echo $token_key; ?></p>
+			<p>Token Secret : <?php echo $token_secret; ?></p>
 			<p><a href="kaskus_profile.php">View your KASKUS profile</a></p>
 			<form method="POST">
 				<input type="submit" name="logout" value="logout">

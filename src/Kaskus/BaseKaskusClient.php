@@ -5,7 +5,7 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ServerException;
 use Kaskus\Client\ClientFactory;
 use Kaskus\Client\HasHandlerStackTrait;
-use Kaskus\Client\OAuthFactory;
+use Kaskus\Client\OAuth1Factory;
 use Kaskus\Exceptions\KaskusClientException;
 use Kaskus\Exceptions\KaskusServerException;
 use Kaskus\Exceptions\ResourceNotFoundException;
@@ -15,23 +15,22 @@ use Psr\Http\Message\ResponseInterface;
 
 class BaseKaskusClient
 {
+	use HasHandlerStackTrait;
+
 	const UNAUTHENTUCATED_STACK = 'unauthenticated';
 	const AUTHENTUCATED_STACK = 'authenticated';
-
-	use HasHandlerStackTrait;
 
 	//todo: revert this
 	//protected $baseUri = 'https://www.kaskus.co.id/api/oauth/';
 	protected $baseUri = 'https://webbranches-forum.kaskus.co.id/api/live/';
 	protected $consumerKey;
 	protected $consumerSecret;
-
 	protected $unauthenticatedListener;
 	protected $authenticatedListener;
 
 	public function __construct(
 		ClientFactory $clientFactory,
-		OAuthFactory $oauthFactory
+		OAuth1Factory $oauthFactory
 	) {
 		$this->oauthFactory = $oauthFactory;
 
@@ -48,37 +47,37 @@ class BaseKaskusClient
 		$this->client = $clientFactory->create($clientConfig);
 	}
 
-	public function get($uri, array $options = [])
+	public function get(string $uri, array $options = [])
 	{
 		$result = $this->client->get($uri, $options);
 		return $result;
 	}
 
-	public function head($uri, array $options = [])
+	public function head(string $uri, array $options = [])
 	{
 		$result = $this->client->head($uri, $options);
 		return $result;
 	}
 
-	public function put($uri, array $options = [])
+	public function put(string $uri, array $options = [])
 	{
 		$result = $this->client->put($uri, $options);
 		return $result;
 	}
 
-	public function post($uri, array $options = [])
+	public function post(string $uri, array $options = [])
 	{
 		$result = $this->client->post($uri, $options);
 		return $result;
 	}
 
-	public function patch($uri, array $options = [])
+	public function patch(string $uri, array $options = [])
 	{
 		$result = $this->client->patch($uri, $options);
 		return $result;
 	}
 
-	public function delete($uri, array $options = [])
+	public function delete(string $uri, array $options = [])
 	{
 		$result = $this->client->delete($uri, $options);
 		return $result;
@@ -95,7 +94,7 @@ class BaseKaskusClient
 		return $result;
 	}
 
-	public function setCredentials($tokenKey, $tokenSecret)
+	public function setCredentials(string $tokenKey, string $tokenSecret)
 	{
 		$this->tokenKey = $tokenKey;
 		$this->tokenSecret = $tokenSecret;
@@ -104,7 +103,7 @@ class BaseKaskusClient
 		$this->addAuthenticatedListener();
 	}
 
-	public function getAuthorizeUrl($token)
+	public function getAuthorizeUrl(string $token)
 	{
 		$url = $this->baseUri . '/authorize?token=' . urlencode($token);
 		return $url;
@@ -118,7 +117,7 @@ class BaseKaskusClient
 			]
 		];
 
-		$response = $this->client->get('token', $options);
+		$response = $this->get('token', $options);
 		$tokenResponse = $response->getBody()->getContents();
 		parse_str($tokenResponse, $requestToken);
 
@@ -131,7 +130,8 @@ class BaseKaskusClient
 			throw new KaskusClientException('You have to set credentials with authorized request token!');
 		}
 
-		$response = $this->client->get('accesstoken');
+		$accessToken = [];
+		$response = $this->get('accesstoken');
 		$tokenResponse = $response->getBody()->getContents();
 		parse_str($tokenResponse, $accessToken);
 
@@ -175,7 +175,7 @@ class BaseKaskusClient
 		$this->removeListener(self::AUTHENTUCATED_STACK);
 	}
 
-	protected function addListener($identifier, $config)
+	protected function addListener(string $identifier, array $config)
 	{
 		$listener = $this->oauthFactory->create($config);
 		$this->getHandlerStack()->push($listener, $identifier);
@@ -183,7 +183,7 @@ class BaseKaskusClient
 		return $listener;
 	}
 
-	protected function removeListener($identifier)
+	protected function removeListener(string $identifier)
 	{
 		$this->getHandlerStack()->remove($identifier);
 	}
@@ -199,8 +199,8 @@ class BaseKaskusClient
 		}
 
 		try {
-			$error_json = $response->getBody()->getContents();
-			$error = json_decode($error_json, true);
+			$errorJson = $response->getBody()->getContents();
+			$error = json_decode($errorJson, true);
 		} catch (\RuntimeException $e) {
 			throw new KaskusServerException($e->getMessage());
 		}

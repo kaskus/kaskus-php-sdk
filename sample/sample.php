@@ -3,7 +3,6 @@
 define('KASKUS_SDK_SRC_DIR', __DIR__.'/../src/Kaskus/');
 require __DIR__ . '/../autoload.php';
 
-
 //todo: revert this
 // $consumerKey = 'YOUR_API_KEY';
 // $consumerSecret = 'YOUR_API_SECRET';
