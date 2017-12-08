@@ -137,7 +137,7 @@ class BaseKaskusClient
 		return $url;
 	}
 
-	public function getRequestToken($callback)
+	public function getRequestToken(string $callback)
 	{
 		$options = [
 			'query' => [
@@ -192,7 +192,7 @@ class BaseKaskusClient
 		);
 
 		if ($this->authenticatedListener !== null) {
-			$this->removeListener(self::AUTHENTUCATED_STACK);
+			$this->removeAuthenticatedListener();
 		}
 
 		$this->authenticatedListener = $this->addListener(self::AUTHENTUCATED_STACK, $config);
