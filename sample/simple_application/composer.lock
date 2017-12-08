@@ -241,12 +241,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/kaskus/kaskus-php-sdk.git",
-                "reference": "ddef716b45d141f1e883ed9f5500de5ee96d17fd"
+                "reference": "779674a9a9cf7053da4a93155f68fa35275f856b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kaskus/kaskus-php-sdk/zipball/ddef716b45d141f1e883ed9f5500de5ee96d17fd",
-                "reference": "ddef716b45d141f1e883ed9f5500de5ee96d17fd",
+                "url": "https://api.github.com/repos/kaskus/kaskus-php-sdk/zipball/779674a9a9cf7053da4a93155f68fa35275f856b",
+                "reference": "779674a9a9cf7053da4a93155f68fa35275f856b",
                 "shasum": ""
             },
             "require": {
@@ -274,7 +274,7 @@
                 "kaskus",
                 "sdk"
             ],
-            "time": "2017-12-05T09:07:05+00:00"
+            "time": "2017-12-08T02:45:45+00:00"
         },
         {
             "name": "psr/http-message",
