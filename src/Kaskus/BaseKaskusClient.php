@@ -45,7 +45,7 @@ class BaseKaskusClient
 		$this->client = $clientFactory->create($clientConfig);
 	}
 
-	public function get(string $uri, array $options = [])
+	public function get($uri, array $options = [])
 	{
 		try {
 			$result = $this->client->get($uri, $options);
@@ -56,7 +56,7 @@ class BaseKaskusClient
 		return $result;
 	}
 
-	public function head(string $uri, array $options = [])
+	public function head($uri, array $options = [])
 	{
 		try {
 			$result = $this->client->head($uri, $options);
@@ -67,7 +67,7 @@ class BaseKaskusClient
 		return $result;
 	}
 
-	public function put(string $uri, array $options = [])
+	public function put($uri, array $options = [])
 	{
 		try {
 			$result = $this->client->put($uri, $options);
@@ -78,7 +78,7 @@ class BaseKaskusClient
 		return $result;
 	}
 
-	public function post(string $uri, array $options = [])
+	public function post($uri, array $options = [])
 	{
 		try {
 			$result = $this->client->post($uri, $options);
@@ -89,7 +89,7 @@ class BaseKaskusClient
 		return $result;
 	}
 
-	public function patch(string $uri, array $options = [])
+	public function patch($uri, array $options = [])
 	{
 		try {
 			$result = $this->client->patch($uri, $options);
@@ -100,7 +100,7 @@ class BaseKaskusClient
 		return $result;
 	}
 
-	public function delete(string $uri, array $options = [])
+	public function delete($uri, array $options = [])
 	{
 		try {
 			$result = $this->client->delete($uri, $options);
@@ -122,7 +122,7 @@ class BaseKaskusClient
 		return $result;
 	}
 
-	public function setCredentials(string $tokenKey, string $tokenSecret)
+	public function setCredentials($tokenKey, $tokenSecret)
 	{
 		$this->tokenKey = $tokenKey;
 		$this->tokenSecret = $tokenSecret;
@@ -131,13 +131,13 @@ class BaseKaskusClient
 		$this->addAuthenticatedListener();
 	}
 
-	public function getAuthorizeUrl(string $token)
+	public function getAuthorizeUrl($token)
 	{
 		$url = $this->baseUri . '/authorize?token=' . urlencode($token);
 		return $url;
 	}
 
-	public function getRequestToken(string $callback)
+	public function getRequestToken($callback)
 	{
 		$options = [
 			'query' => [
@@ -203,7 +203,7 @@ class BaseKaskusClient
 		$this->removeListener(self::AUTHENTUCATED_STACK);
 	}
 
-	protected function addListener(string $identifier, array $config)
+	protected function addListener($identifier, array $config)
 	{
 		$listener = $this->oauthFactory->create($config);
 		$this->getHandlerStack()->push($listener, $identifier);
@@ -211,7 +211,7 @@ class BaseKaskusClient
 		return $listener;
 	}
 
-	protected function removeListener(string $identifier)
+	protected function removeListener($identifier)
 	{
 		$this->getHandlerStack()->remove($identifier);
 	}
