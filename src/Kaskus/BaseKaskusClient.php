@@ -17,8 +17,8 @@ class BaseKaskusClient
 {
 	use HasHandlerStackTrait;
 
-	const UNAUTHENTUCATED_STACK = 'unauthenticated';
-	const AUTHENTUCATED_STACK = 'authenticated';
+	const UNAUTHENTICATED_STACK = 'unauthenticated';
+	const AUTHENTICATED_STACK = 'authenticated';
 
 	protected $baseUri = 'https://www.kaskus.co.id/api/oauth/';
 	protected $consumerKey;
@@ -174,12 +174,12 @@ class BaseKaskusClient
 			'token_secret' => null,
 		);
 
-		$this->unauthenticatedListener = $this->addListener(KaskusClient::UNAUTHENTUCATED_STACK, $config);
+		$this->unauthenticatedListener = $this->addListener(KaskusClient::UNAUTHENTICATED_STACK, $config);
 	}
 
 	protected function removeUnauthenticatedListener()
 	{
-		$this->removeListener(self::UNAUTHENTUCATED_STACK);
+		$this->removeListener(self::UNAUTHENTICATED_STACK);
 	}
 
 	protected function addAuthenticatedListener()
@@ -195,12 +195,12 @@ class BaseKaskusClient
 			$this->removeAuthenticatedListener();
 		}
 
-		$this->authenticatedListener = $this->addListener(self::AUTHENTUCATED_STACK, $config);
+		$this->authenticatedListener = $this->addListener(self::AUTHENTICATED_STACK, $config);
 	}
 
 	protected function removeAuthenticatedListener()
 	{
-		$this->removeListener(self::AUTHENTUCATED_STACK);
+		$this->removeListener(self::AUTHENTICATED_STACK);
 	}
 
 	protected function addListener($identifier, array $config)
