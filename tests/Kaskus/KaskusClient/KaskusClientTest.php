@@ -17,9 +17,9 @@ class KaskusClientTest extends TestCase
 	{
 		parent::setUp();
 
-		$this->consumerKey = 'e4de10dc4e2aea8bc2a14534ac9adf';
-		$this->consumerSecret = '18f1444557acf08bd6b6fa414cb1d8';
-		$this->baseUri = 'https://webbranches-forum.kaskus.co.id/api/live/';
+		$this->consumerKey = 'e4de10dc4e4ac9a8bc2a14b6fa41df';
+		$this->consumerSecret = '18f8bd62aea5314445574cbacf01d8';
+		$this->baseUri = 'https://forum.kaskus.co.id/';
 	}
 
 	private function createObject()
