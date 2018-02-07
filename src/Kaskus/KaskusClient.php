@@ -97,6 +97,11 @@ class KaskusClient extends \GuzzleHttp\Client
     protected function handleException(RequestException $exception)
     {
         $response = $exception->getResponse();
+        
+        if (!$exception->hasResponse()) {
+            throw new KaskusServerException($exception->getMessage());
+        }
+
         $statusCode = $response->getStatusCode();
 
         if ($statusCode >= 500) {
