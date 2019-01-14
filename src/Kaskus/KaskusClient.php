@@ -94,6 +94,11 @@ class KaskusClient extends \GuzzleHttp\Client
         return $accessToken;
     }
 
+    public function getAuthenticatedOauthListener()
+    {
+        return $this->authenticatedOauthListener;
+    }
+
     protected function handleException(RequestException $exception)
     {
         $response = $exception->getResponse();
