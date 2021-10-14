@@ -1,9 +1,8 @@
 <?php
+
 namespace Kaskus;
 
-use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Message\RequestInterface;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
 use Kaskus\Exceptions\KaskusClientException;
@@ -14,123 +13,123 @@ use Kaskus\Exceptions\UnauthorizedException;
 class KaskusClient extends \GuzzleHttp\Client
 {
 
-    const BASE_URL = 'https://www.kaskus.co.id/api/oauth/';
+	const BASE_URL = 'https://www.kaskus.co.id/api/oauth/';
 
-    /**
-     * @var array
-     */
-    protected $oauthConfig;
+	/**
+	 * @var array
+	 */
+	protected $oauthConfig;
 
-    protected $unauthenticatedOauthListener;
+	protected $unauthenticatedOauthListener;
 
-    protected $authenticatedOauthListener;
+	protected $authenticatedOauthListener;
 
-    public function __construct($consumerKey, $consumerSecret, $baseUrl = null)
-    {
-        $config = array(
-            'base_url' => $baseUrl ? $baseUrl : self::BASE_URL,
-            'defaults' => array(
-                'auth' => 'oauth',
-                'headers' => array(
-                    'Return-Type' => 'text/json'
-                )
-            )
-        );
-        parent::__construct($config);
+	public function __construct($consumerKey, $consumerSecret, $baseUrl = null)
+	{
+		$config = array(
+			'base_url' => $baseUrl ? $baseUrl : self::BASE_URL,
+			'defaults' => array(
+				'auth' => 'oauth',
+				'headers' => array(
+					'Return-Type' => 'text/json'
+				)
+			)
+		);
+		parent::__construct($config);
 
-        $this->oauthConfig = array(
-            'consumer_key' => $consumerKey,
-            'consumer_secret' => $consumerSecret
-        );
+		$this->oauthConfig = array(
+			'consumer_key' => $consumerKey,
+			'consumer_secret' => $consumerSecret
+		);
 
-        $this->unauthenticatedOauthListener = new Oauth1($this->oauthConfig);
-        $this->getEmitter()->attach($this->unauthenticatedOauthListener);
-    }
+		$this->unauthenticatedOauthListener = new Oauth1($this->oauthConfig);
+		$this->getEmitter()->attach($this->unauthenticatedOauthListener);
+	}
 
-    public function send(RequestInterface $request)
-    {
-        try {
-            return parent::send($request);
-        } catch (RequestException $e) {
-            $this->handleException($e);
-        }
-    }
+	public function send(RequestInterface $request)
+	{
+		try {
+			return parent::send($request);
+		} catch (RequestException $e) {
+			$this->handleException($e);
+		}
+	}
 
-    public function setCredentials($tokenKey, $tokenSecret)
-    {
-        $this->getEmitter()->detach($this->unauthenticatedOauthListener);
-        $config = array_merge($this->oauthConfig, array(
-            'token' => $tokenKey,
-            'token_secret' => $tokenSecret
-        ));
-        $this->authenticatedOauthListener = new Oauth1($config);
-        $this->getEmitter()->attach($this->authenticatedOauthListener);
-    }
+	public function setCredentials($tokenKey, $tokenSecret)
+	{
+		$this->getEmitter()->detach($this->unauthenticatedOauthListener);
+		$config = array_merge($this->oauthConfig, array(
+			'token' => $tokenKey,
+			'token_secret' => $tokenSecret
+		));
+		$this->authenticatedOauthListener = new Oauth1($config);
+		$this->getEmitter()->attach($this->authenticatedOauthListener);
+	}
 
-    public function getRequestToken($callback)
-    {
-        $response = $this->get('token', ['query' => ['oauth_callback' => $callback]]);
-        $tokenResponse = $response->getBody()->getContents();
-        parse_str($tokenResponse, $requestToken);
+	public function getRequestToken($callback)
+	{
+		$response = $this->get('token', ['query' => ['oauth_callback' => $callback]]);
+		$tokenResponse = $response->getBody()->getContents();
+		parse_str($tokenResponse, $requestToken);
 
-        return $requestToken;
-    }
+		return $requestToken;
+	}
 
-    public function getAuthorizeUrl($token)
-    {
-        return $this->getBaseUrl() . '/authorize?token=' . urlencode($token);
-    }
+	public function getAuthorizeUrl($token)
+	{
+		return $this->getBaseUrl() . '/authorize?token=' . urlencode($token);
+	}
 
-    public function getAccessToken()
-    {
-        if (!$this->authenticatedOauthListener) {
-            throw new KaskusClientException('You have to set credentials with authorized request token!');
-        }
+	public function getAccessToken()
+	{
+		if (!$this->authenticatedOauthListener) {
+			throw new KaskusClientException('You have to set credentials with authorized request token!');
+		}
 
-        $response = $this->get('accesstoken');
-        $tokenResponse = $response->getBody()->getContents();
-        parse_str($tokenResponse, $accessToken);
+		$response = $this->get('accesstoken');
+		$tokenResponse = $response->getBody()->getContents();
+		parse_str($tokenResponse, $accessToken);
 
-        return $accessToken;
-    }
+		return $accessToken;
+	}
 
-    public function getAuthenticatedOauthListener()
-    {
-        return $this->authenticatedOauthListener;
-    }
+	public function getAuthenticatedOauthListener()
+	{
+		return $this->authenticatedOauthListener;
+	}
 
-    protected function handleException(RequestException $exception)
-    {
-        $response = $exception->getResponse();
-        
-        if (!$exception->hasResponse()) {
-            throw new KaskusServerException($exception->getMessage());
-        }
+	protected function handleException(RequestException $exception)
+	{
+		$response = $exception->getResponse();
 
-        $statusCode = $response->getStatusCode();
+		if (!$exception->hasResponse()) {
+			throw new KaskusServerException($exception->getMessage());
+		}
 
-        if ($statusCode >= 500) {
-            $bodyContent = $response->getBody()->getContents();
-            throw new KaskusServerException(print_r($bodyContent, true), $statusCode);
-        }
+		$statusCode = $response->getStatusCode();
 
-        try {
-            $error = $response->json();
-        } catch (\RuntimeException $e) {
-            throw new KaskusServerException($e->getMessage());
-        }
+		if ($statusCode >= 500) {
+			$bodyContent = $response->getBody()->getContents();
+			throw new KaskusServerException(print_r($bodyContent, true), $statusCode);
+		}
 
-        if (isset($error['errormessage'])) {
-            $errorMessage = $error['errormessage'];
+		try {
+			$error = $response->json();
+		} catch (\RuntimeException $e) {
+			throw new KaskusServerException($e->getMessage());
+		}
 
-            if ($statusCode === 401) {
-                throw new UnauthorizedException($errorMessage);
-            } elseif ($statusCode === 404) {
-                throw new ResourceNotFoundException();
-            }
-            throw new KaskusClientException($errorMessage);
-        }
+		if (isset($error['errormessage'])) {
+			$errorMessage = $error['errormessage'];
 
-        throw new KaskusServerException(print_r($error, true), $statusCode);
-    }
+			if ($statusCode === 401) {
+				throw new UnauthorizedException($errorMessage);
+			} elseif ($statusCode === 404) {
+				throw new ResourceNotFoundException();
+			}
+			throw new KaskusClientException($errorMessage);
+		}
+
+		throw new KaskusServerException(print_r($error, true), $statusCode);
+	}
 }
