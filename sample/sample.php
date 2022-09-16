@@ -8,9 +8,9 @@ $consumerSecret = 'YOUR_API_SECRET';
 $client = new \Kaskus\KaskusClient($consumerKey, $consumerSecret);
 
 try {
-    $response = $client->get('v1/hot_threads');
-    $forumList = $response->json();
-    print_r($forumList);
+    $response = $client->get('v3/hot_threads?channel_id=0');
+    $hotThreads = json_decode($response->getBody(), true);
+    print_r($hotThreads);
 } catch (\Kaskus\Exceptions\KaskusRequestException $exception) {
     // Kaskus Api returned an error
     echo $exception->getMessage();

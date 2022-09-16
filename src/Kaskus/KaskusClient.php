@@ -2,19 +2,19 @@
 namespace Kaskus;
 
 use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\ServerException;
-use GuzzleHttp\Message\RequestInterface;
+use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Subscriber\Oauth\Oauth1;
 use Kaskus\Exceptions\KaskusClientException;
 use Kaskus\Exceptions\KaskusServerException;
 use Kaskus\Exceptions\ResourceNotFoundException;
 use Kaskus\Exceptions\UnauthorizedException;
+use Psr\Http\Message\ResponseInterface;
 
 class KaskusClient extends \GuzzleHttp\Client
 {
 
     const BASE_URL = 'https://www.kaskus.co.id/api/oauth/';
+    const OAUTH_HANDLER_NAME = 'oauth1_handler';
 
     /**
      * @var array
@@ -25,46 +25,51 @@ class KaskusClient extends \GuzzleHttp\Client
 
     protected $authenticatedOauthListener;
 
+    private $baseUrl;
+
+    protected $handlerStack;
+
     public function __construct($consumerKey, $consumerSecret, $baseUrl = null)
     {
-        $config = array(
-            'base_url' => $baseUrl ? $baseUrl : self::BASE_URL,
-            'defaults' => array(
-                'auth' => 'oauth',
-                'headers' => array(
-                    'Return-Type' => 'text/json'
-                )
-            )
-        );
-        parent::__construct($config);
-
+        $this->baseUrl = $baseUrl ? $baseUrl : self::BASE_URL;
         $this->oauthConfig = array(
             'consumer_key' => $consumerKey,
             'consumer_secret' => $consumerSecret
         );
 
+        $this->handlerStack = HandlerStack::create();
         $this->unauthenticatedOauthListener = new Oauth1($this->oauthConfig);
-        $this->getEmitter()->attach($this->unauthenticatedOauthListener);
+        $this->handlerStack->push($this->unauthenticatedOauthListener, self::OAUTH_HANDLER_NAME);
+
+        $config = array(
+            'base_uri' => $this->baseUrl,
+            'headers' => array(
+                    'Return-Type' => 'text/json'
+            ),
+            'handler' => $this->handlerStack,
+            'auth' => 'oauth'
+        );
+        parent::__construct($config);
     }
 
-    public function send(RequestInterface $request)
+    public function request(string $method, $uri = '', array $options = []): ResponseInterface
     {
         try {
-            return parent::send($request);
-        } catch (RequestException $e) {
+            return parent::request($method, $uri, $options);
+        } catch (ClientException $e) {
             $this->handleException($e);
         }
     }
 
     public function setCredentials($tokenKey, $tokenSecret)
     {
-        $this->getEmitter()->detach($this->unauthenticatedOauthListener);
         $config = array_merge($this->oauthConfig, array(
             'token' => $tokenKey,
             'token_secret' => $tokenSecret
         ));
         $this->authenticatedOauthListener = new Oauth1($config);
-        $this->getEmitter()->attach($this->authenticatedOauthListener);
+        $this->handlerStack->remove(self::OAUTH_HANDLER_NAME);
+        $this->handlerStack->push($this->authenticatedOauthListener, self::OAUTH_HANDLER_NAME);
     }
 
     public function getRequestToken($callback)
@@ -78,7 +83,7 @@ class KaskusClient extends \GuzzleHttp\Client
 
     public function getAuthorizeUrl($token)
     {
-        return $this->getBaseUrl() . '/authorize?token=' . urlencode($token);
+        return $this->baseUrl . '/authorize?token=' . urlencode($token);
     }
 
     public function getAccessToken()
@@ -94,7 +99,7 @@ class KaskusClient extends \GuzzleHttp\Client
         return $accessToken;
     }
 
-    protected function handleException(RequestException $exception)
+    protected function handleException(ClientException $exception)
     {
         $response = $exception->getResponse();
         
@@ -110,7 +115,7 @@ class KaskusClient extends \GuzzleHttp\Client
         }
 
         try {
-            $error = $response->json();
+            $error = json_decode($response->getBody(), true);
         } catch (\RuntimeException $e) {
             throw new KaskusServerException($e->getMessage());
         }

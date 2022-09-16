@@ -24,7 +24,7 @@
 			$client->setCredentials($accessToken['oauth_token'], $accessToken['oauth_token_secret']);
 			try {
 				$response = $client->get('user');
-				$userInfo = $response->json();
+				$userInfo = json_decode($response->getBody(), true);
 				$profilePicture = $userInfo['profilepicture'];
 			} catch (\Kaskus\Exceptions\KaskusRequestException $exception) {
 				// Kaskus Api returned an error
